@@ -1,0 +1,8 @@
+---
+# tasks file for roles/Prometheus_Monitoring_Ubuntu
+- name: Installation of prometheus
+  apt:
+    name:
+      - prometheus
+      - prometheus-node-exporter
+

@@ -1,0 +1,75 @@
+---
+# tasks file for roles/Nagios_Monitoring_Centos
+- name: Installing dependencies
+  yum:
+    name:
+      - compat-openssl10
+      - perl
+      - gcc
+      - glibc
+      - glibc-common
+      - unzip
+      - php
+      - gd
+      - gd-devel
+      - postfix
+    state: present
+
+- name: Add group in nagiosxi
+  group:
+    name: nagiosxi
+    state: present
+
+- name: Add user in nagios
+  user:
+    name: nagios
+    group: nagiosxi
+
+- name: Downloading and Extracting Nagios from official website
+  unarchive:
+    src: https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.4.5.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Configure nagios on centos
+  command: ./configure --with-command-group=nagiosxi
+  args:
+    chdir: /tmp/nagios-4.4.5
+
+- name: Make clean
+  make:
+    target: clean
+    chdir: /tmp/nagios-4.4.5
+
+- name: Make all
+  make:
+    target: all
+    chdir: /tmp/nagios-4.4.5
+
+- name: Make install init
+  become: yes
+  make:
+    target: install-init
+    chdir: /tmp/nagios-4.4.5
+
+- name: Make install-webconf
+  become: yes
+  make:
+    target:
+    chdir: /tmp/nagios-4.4.5
+
+- name: Install passlib
+  pip:
+    name: passlib
+
+- name: create user in nagios
+  htpasswd:
+    path: /usr/local/nagios/etc/htpasswd.users
+    name: user
+    password: password
+
+- name: Restarting httpd
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
