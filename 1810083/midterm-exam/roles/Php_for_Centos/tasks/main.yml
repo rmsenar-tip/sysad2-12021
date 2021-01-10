@@ -1,0 +1,18 @@
+---
+# tasks file for roles/Php_for_Centos
+#
+- name: Install Php
+  yum:
+    name: php
+    state: latest
+    update_cache: yes
+
+- name: PHP host index
+  copy:
+    content: "Lab ka ni mama mo"
+    dest: /var/www/html/index2.html
+    owner: root
+    group: root
+    mode: '0644'
+
+

@@ -1,0 +1,83 @@
+---
+- name: Installation of  elastic for Ubuntu
+  hosts: ubuntu
+  roles:
+    - Elastic_for_Ubuntu
+
+- name: Installation of  elastic for Centos
+  hosts: centos
+  roles:
+    - Elastic_for_Centos
+
+
+- name: Install Nagios for Ubuntu
+  hosts: ubuntu
+  vars_files:
+    - ./config.yaml
+  roles:
+    - Configure_for_Ubuntu
+    - Nagios_main_Ubuntu
+    - Nagios_plugins_Ubuntu
+
+
+- name: Install Nagios for Centos
+  hosts: centos
+  roles:
+    - Configure_for_Centos
+    - Nagios_main_Centos
+    - Nagios_plugins_Centos
+
+- name: Install Grafana, Prometheus and influxdb in ubuntu
+  hosts: ubuntu
+  roles:
+    - GPI_for_Ubuntu
+
+- name: Install Grafana, Promethus and influxdb in Cento
+  hosts: centos
+  roles:
+    - GPI_for_Centos
+
+- name: Install LAMP for ubuntu
+  hosts: ubuntu
+  roles:
+    - Apache2_for_Ubuntu
+    - Mysql_for_Ubuntu
+    - Php_for_Ubuntu
+    - Web-service_for_Ubuntu
+
+- name: Install LAMP for centos
+  hosts: centos
+  roles:
+    - Apache2_for_Centos
+    - Mysql_for_Centos
+    - Php_for_Centos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

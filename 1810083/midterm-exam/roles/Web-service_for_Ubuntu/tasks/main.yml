@@ -1,0 +1,6 @@
+---
+# tasks file for roles/Web-service_for_Ubuntu
+
+- name: Check web service is up
+  uri:
+    url: http://www.example.com/
