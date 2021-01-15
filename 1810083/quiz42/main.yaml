@@ -1,0 +1,9 @@
+---
+- hosts: ubuntu
+  roles:
+    - Installation_for_Ubuntu
+
+- hosts: centos
+  roles:
+    - Installation_for_Centos
+

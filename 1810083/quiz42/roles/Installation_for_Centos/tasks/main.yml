@@ -1,0 +1,50 @@
+---
+# tasks file for roles/Installation_for_Centos
+- name: Add grafana repositories
+  copy:
+    src: grafana.repo
+    dest: /etc/yum.repos.d/
+
+- name: Installation of grafana
+  yum:
+    name: grafana
+    state: latest
+    update_cache: yes
+
+- name: Start grafana
+  service:
+    name: grafana-server
+    state: started
+
+- name: Adding the prometheus repo
+  copy:
+    src: prometheus.repo
+    dest: /etc/yum.repos.d/
+
+- name: Install prometheus
+  yum:
+    name: prometheus2
+    state: latest
+    update_cache: yes
+
+- name: Start prometheus
+  service:
+    name: prometheus
+    state: started
+
+- name: Add influxdata repo
+  copy:
+    src: influxdb.repo
+    dest: /etc/yum.repos.d/
+
+- name: Installing telegraf
+  yum:
+    name: telegraf
+    state: latest
+    update_cache: yes
+
+- name: Start telegraf
+  service:
+    name: telegraf
+    state: started
+
