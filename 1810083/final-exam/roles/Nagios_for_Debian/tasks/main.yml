@@ -1,0 +1,137 @@
+---
+# tasks file for roles/Nagios_for_Debian
+
+- name: Installing Packages for Debian
+  apt:
+    name:
+      - build-essential
+      - unzip
+      - openssl
+      - libssl-dev
+      - apache2
+      - php
+      - libapache2-mod-php
+      - php-gd
+      - libgd-dev
+    state: latest
+    update_cache: yes
+
+- name: Creating nagios group
+  group:
+    name: nagios
+    state: present
+
+- name: Creating nagcmd group
+  group:
+    name: nagcmd
+    state: present
+
+- name: Creating nagios user
+  user:
+    name: nagios
+    shell: /bin/bash
+    comment: nagios user
+    groups: nagios
+    password: '{{ nag_pass }}'
+
+- name: Adding nagios user group for external command
+  user:
+    name: nagios
+    groups: nagcmd
+    append: yes
+    
+- name: Adding WWW-data user group for external command
+  user:
+    name: www-data
+    groups: nagcmd
+    append: yes
+
+- name: Creating download directory
+  file:
+    path: /downloads
+    state: directory
+    owner: nobody
+    group: nogroup
+
+- name: Downloading nagios
+  get_url:
+    url: https://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.2.1.tar.gz
+    dest: /downloads
+
+- name: Downloading nagios plugins
+  get_url:
+    url: https://nagios-plugins.org/download/nagios-plugins-2.3.3.tar.gz
+    dest: /downloads
+
+- name: Extracting nagios core
+  unarchive:
+    src: /downloads/nagios-4.2.1.tar.gz
+    dest: /downloads
+    remote_src: yes
+
+- name: Configuring nagios
+  shell: ./configure --with-command-group=nagcmd --with-command=nagcmd --with-httpd_conf=/etc/apache2/sites-enabled/
+  args:
+    chdir: /downloads/nagios-4.2.1
+
+- name: Compiling nagios core
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: all
+
+- name: Installing binaries
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install
+
+- name: Installing init script 
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-daemoninit
+
+- name: Installing Configuration files
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-config
+
+- name: Setting up permission
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-commandmode
+
+- name: Installing web interface
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-webconf
+
+- name: Enabling apache reqrite and cgi modules
+  shell: 'a2enmod rewrite cgi'
+
+- name: Installing pip
+  apt:
+    name: python3-pip
+    state: latest
+    update_cache: yes
+
+- name: Installing passlib
+  pip:
+    name: passlib
+    state: latest
+
+- name: Creating nagios acc
+  htpasswd:
+    path: /usr/local/nagios/etc/htpasswd.users
+    name: nagiosxx
+    password: '{{ admin_pass }}'
+    owner: www-data
+    group: www-data
+
+- name: Restarting apache service
+  service:
+    name: apache2
+    state: reloaded
+
+- name: Restarting nagios service
+  shell: '/etc/init.d/nagios start'
+
+

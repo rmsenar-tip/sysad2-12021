@@ -1,0 +1,149 @@
+---
+# tasks file for roles/Nagios_for_Centos
+
+- name: Installing required packages
+  yum:
+    name:
+      - httpd
+      - gcc
+      - glibc
+      - glibc-common
+      - gd-devel
+      - perl
+      - postfix
+      - unzip
+    state: latest
+    update_cache: yes
+
+- name: Start HTTPD on Centos
+  service:
+    name: httpd
+    state: started
+
+- name: Creating Nagios group
+  group:
+    name: nagios
+    state: present
+
+- name: Nagios group creating
+  group:
+    name: nagcmd
+    state: present
+
+- name: Creating nagios User
+  user:
+    name: nagios
+    shell: /bin/bash
+    comment: nagios user
+    group: nagios
+    password: '{{ nag_pass }}'
+
+- name: HTTPD to Nagios group adding
+  user:
+    name: apache
+    groups: nagios
+    append: yes
+
+- name: Adding Nagios user group for external command
+  user:
+    name: nagios
+    groups: nagcmd
+    append: yes
+
+- name: Adding WWW-Data user group for external command adding
+  user:
+    name: www-data
+    group: nagcmd
+    append: yes
+
+- name: Downloads directory
+  file:
+    path: /downloads
+    state: directory
+
+- name: Donwloading Nagios
+  get_url:
+    url: http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.2.1.tar.gz
+    dest: /downloads
+
+- name: Extracting Nagios Core
+  unarchive:
+    src: /downloads/nagios-4.2.1.tar.gz
+    dest: /downloads
+    remote_src: yes
+
+- name: Creating virtual host directory
+  file:
+    path: /etc/httpd/conf.d
+    state: directory
+
+- name: Configuring Nagios
+  shell: ./configure --with-command-group=nagcmd --with-command-group=nagcmd --with-httpd_conf=/etc/httpd/conf.d
+  args:
+    chdir: /downloads/nagios-4.2.1
+
+- name: Compiling Nagios Core
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: all
+
+- name: Installing binaries
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install
+
+- name: Installing init script
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-daemoninit
+
+- name: Installing Configuration files
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-config
+
+- name: Setting permission
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-commandmode
+
+- name: Installing Nagios Web Interface
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-webconf
+
+- name: Installing Exfoliation theme
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-exfoliation
+
+- name: Installing classcui theme
+  make:
+    chdir: /downloads/nagios-4.2.1
+    target: install-classicui
+
+- name: Installing pip for Htpasswd
+  yum:
+    name: python3-pip
+    state: latest
+    update_cache: yes
+
+- name: Installing passlib
+  pip:
+    name: passlib
+    state: latest
+
+- name: Creating Nagios account
+  htpasswd:
+    path: /usr/local/nagios/etc/htpasswd.users
+    name: nagiosadmin
+    password: '{{ admin_pass }}'
+
+- name: Restarting Apache Service.
+  service:
+    name: httpd
+    state: reloaded
+
+- name: Nagios service starting
+  shell: '/etc/init.d/nagios start'
+

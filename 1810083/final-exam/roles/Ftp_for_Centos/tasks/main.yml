@@ -1,0 +1,54 @@
+---
+# tasks file for roles/Ftp_for_Centos
+
+- name: Installation of FTP server on Centos
+  yum:
+    name: vsftpd
+    state: latest
+    update_cache: yes
+
+- name: Starting and Enabling FTP server
+  service:
+    name: vsftpd
+    state: started
+    enabled: yes
+
+- name: Creating FTP user
+  user:
+    name: '{{ user }}'
+    password: '{{ ftp_pass }}'
+
+- name: Denying User
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "DenyUsers '{{ user }}'"
+  register: successfully_denied
+
+- name: Restarting SSHD service
+  service:
+    name: sshd
+    state: restarted
+  when: successfully_denied.changed
+
+- name: Copying default config file
+  copy:
+    src: /etc/vsftpd/vsftpd.conf
+    dest: /etc/vsftpd/vsftpd.conf.default
+    remote_src: True
+
+- name: Limiting FTP user to its directory
+  replace:
+    path: /etc/vsftpd/vsftpd.conf
+    regexp: '#chroot_local_user=YES'
+    replace: 'chroot_local_user=YES'
+
+- name: Configuring FTP file
+  lineinfile:
+    path: /etc/vsftpd/vsftpd.conf
+    line: '{{ ftp_config }}'
+
+- name: Restarting vsftpd
+  service:
+    name: vsftpd
+    state: restarted
+

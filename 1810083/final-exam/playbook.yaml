@@ -1,0 +1,98 @@
+---
+- name: Prelim-exam branch cloning on Centos
+  hosts:
+    - centos
+  vars_files:
+    - config.yaml
+  roles:
+    - Cloning_Centos
+
+- name: Enterprise Service intalling on Centos
+  hosts:
+    - centos
+  vars_files:
+    - config.yaml
+  roles:
+    - Ftp_for_Centos
+
+- name: Monitoring Service installing on Centos
+  hosts:
+    - centos
+  vars_files:
+    - config.yaml
+  roles:
+    - Nagios_for_Centos
+
+- name: Changing Motd on Centos
+  hosts:
+    - centos
+  vars_files:
+    - config.yaml
+  roles:
+    - Changing_Motd
+
+- name: Prelim-exam branch cloning on Debian
+  hosts:
+    - debian
+  vars_files:
+    - config.yaml
+  roles:
+    - Cloning_Debian
+
+- name: Enterprise Service Installing on Debian
+  hosts:
+    - debian
+  vars_files:
+    - config.yaml
+  roles:
+    - Ftp_for_Debian
+
+- name: Monitoring Service Installing on Debian
+  hosts:
+    - debian
+  vars_files:
+    - config.yaml
+  roles:
+    - Nagios_for_Debian
+    
+- name: Changing Motd on Debian
+  hosts:
+    - debian
+  vars_files:
+    - config.yaml
+  roles:
+    - Changing_Motd
+
+- name: Prelim-exam branch cloning on Suse
+  hosts:
+    - suse
+  vars_files:
+    - config.yaml
+  roles:
+    - Cloning_Suse
+
+- name: Enterprise Service Installing on Suse
+  hosts:
+    - suse
+  vars_files:
+    - config.yaml
+  roles:
+    - Ftp_for_Suse
+
+- name: Monitoring Service Installing on Suse
+  hosts:
+    - suse
+  vars_files:
+    - config.yaml
+  roles:
+    - Nagios_for_Suse
+
+- name: Changing Motd on Suse
+  hosts:
+    - suse
+  vars_files:
+    - config.yaml
+  roles:
+    - Changing_Motd
+
+

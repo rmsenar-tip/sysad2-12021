@@ -1,0 +1,7 @@
+---
+# tasks file for roles/Changing_Motd
+
+- name: Changing the MOTD
+  lineinfile:
+    path: /etc/motd
+    line: Ansible Managed by '{{ username }}'
